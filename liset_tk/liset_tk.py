@@ -100,9 +100,6 @@ class liset_tk():
         handles = []
         labels = []
 
-        mask = (self.ripples_GT[:, 1] >= event[0]) & (self.ripples_GT[:, 0] <= event[1])
-        self.window_ripples = self.ripples_GT[mask]
-
         try:
             if extend != 0:
                 if (event_copy[0] - extend) < 0:
@@ -119,6 +116,10 @@ class liset_tk():
             print('IndexError')
             print(f'There no data available for the selected samples.\nLength of loaded data: {int(self.numSamples/self.fs_conv_fact)}')
             return None, None
+
+        # Define window data
+        mask = (self.ripples_GT[:, 1] >= event_copy[0]) & (self.ripples_GT[:, 0] <= event_copy[1])
+        self.window_ripples = self.ripples_GT[mask]
 
         data_event = self.data[event_copy[0]: event_copy[1]][:]
         self.window = deepcopy(data_event)
