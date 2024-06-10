@@ -21,6 +21,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import sys
 sys.path.insert(0, '../utils/')
 from eval import modelEval
+sys.path.insert(0, '../runSNN/')
+from models import torchSNN
 
 import tensorflow as tf
 import tensorflow.keras as kr
@@ -367,9 +369,8 @@ class liset_tk():
             print("Loading model...", end=" ")
 
         if model_path.endswith('.pt'):
+            self.model = torchSNN(model_path)
             self.model_type='SNN'
-            
-            pass
 
         else:
             optimizer = kr.optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07, amsgrad=False)
@@ -390,7 +391,7 @@ class liset_tk():
 
 
 
-    def predict(self, threshold = 0.7):
+    def predict(self, threshold = 0.7, channel=5):
         """
         Predict events in the data using the loaded model.
 
@@ -400,9 +401,13 @@ class liset_tk():
         Returns:
         - None
         """
+        if self.model_type == 'SNN':
+            input = y_discretize_1Dsignal(bandpass_filter(self.data[:, channel], [100, 250], self.fs), 50)
+            output = self.model(input)
+            self.prediction_idxs = detect_rate_increase(output)
+            self.prediction_times = self.prediction_idxs / self.fs
 
-
-        if self.model_type == 'CNN':
+        elif self.model_type == 'CNN':
             window = self.model_window_for_input
             X = generate_overlapping_windows(self.data, window, window/2, self.fs)
             raw_predictions = self.model.predict(X, verbose=self.verbose)
