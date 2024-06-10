@@ -1,0 +1,51 @@
+Figure 1. Applications of neuromorphic devices in real-time analysis of biological signals. Among the most relevant it can be found applications for:  Deep Brain Stimulation closed-loop systems, cancer detection from biomarkers, and cardiac anomalies detec-tors, and imaging advances for high computation cost imaging techniques .
+
+Figure 2. Memristors Overview. How memristors materials are distributed and their behaviours to electrical stimulus. 
+A) Spatial distribution of memristors layers. The choice of silicon substrate can impact factors such as thermal conductivi-ty, mechanical strength, and integration with other semiconductor technologies, top and bottom electrodes establish electrical contact with the memristor and enable flow of current. Finally, Dioxide layers undergo reversible changes in its resistance in response to applied electric fields or currents (Image recreated from [94]) 
+B) Current-Voltage characteristic curves of memristors, showcasing their hysteresis behaviour. Image “a” shows a bipolar state transition from high resistant to low. When the voltage is reduced back to zero and further int the negative range, the memristor remains in the LRS until the negative voltage exceeds a certain threshold, causing it to switch back to HRS (marked as "RESET (OFF)"). This creates a hysteresis loop, indicating the memory effect of the device. Image “b”, unlike the bipolar case, the reset process (switching back to HRS) happens at a higher voltage but of the same polarity as the set process. The device remains in the LRS until a higher voltage is applied, causing it to reset to HRS. 
+ C) Memristive cross-bar arrays in SNN and Neuromorphic Computing. The convolution product needed in convolutional neural networks in image classification tasks is the most energy demanding process and it can be naturally performed in a cross-bar array on the physical level based on Ohm and Kirchoff laws [13], [95].
+
+
+Figure 3. Two LIF neurons connected with a memristive synapse. The capacitor accumulates voltage until it reaches a threshold, where the trigger makes the switch connect and send the current (spike) out of the circuit. The memristor con-nects the neurons and adjusts its resistance in response to history of voltage applied. The natural behaviour of the capaci-tor leaks voltage at a certain rate making the neuron “leaky”. (LIF circuit reconstructed from [16])
+
+
+Figure 4. Newer LIF models using memristors for mem-brane voltage leakage. Memristor 1 are synapses with other neurons. The circuit enables for backpropagation learning. Memristor 2 is the component regulating the accumulation and leakage of voltage. (Reproduced from [1]) 
+
+
+Figure 5. Versatility of Lava Neuromorphic Framework. Lava supports the creation of custom processes which can con-nect between them setting “IN” and “OUT” ports. (green and blue) These processes are compiled and work by event driven computation. The running of these processes can be on neuromorphic hardware or in a simulated neuromorphic environ-ment [5].
+
+
+Figure 6. Schematic representation of BBB complex inter-action with inorganic and polymeric nanoparticles [51]. Liposomes or exosomes must cross endothelial cells, as well as pericytes to finally reach the CNS. 
+
+Figure 7. Overview of DBS on neuroplasticity. Neuro-transmitters (inset) are released in response to stimula-tion, leading to calcium waves and subsequent release of gliotransmitters. This release influences synaptic plastici-ty, leading to arteriole dilation and increased regional blood flow ultimately leading to tissue regeneration (Figure from [62]).
+
+Figure 8. Transversal axis sliced view of the hippocampus showcases its subregions and their spatial distribution. Entorinal Cortex (EC) and Dentrite Gyrus (DG) are sand-wiched between them creating the collectively known "hippocampal formation". 
+
+Figure 9. SWRs: the most synchronous oscillating pattern in the mammalian brain. SWR recorded from different mammal hippocampus. They all have a similar pattern: 3-9 high amplitude waves in a frequency ranging from 100-250 Hz (Figure from [69] )
+
+
+Figure 10. Ripples refer to high amplitude oscillatory activi-ty in frequencies ranging from 100-250 Hz. Sharp Waves show a deeper low frequency wave sharply decreasing at the beggining.
+
+
+Figure 11. Overview of the two recording sessions: Ripple events, durations, and features. Both datasets have very similar events. Amigo2 represents a major part of the data. Both sessions contain altogether 1794 ripple events. A) Normal distribu-tion of the duration of the hand-tagged ripples. Most of them are in the range of 30-60 ms, however there is a non-small part of the population with longer durations ranging from 80-120 ms. B) Ripple events represent a ~2% of the recording and are C) uniformly distributed through it. Each vertical green line represent a second of the recording which contained at least one event.
+
+
+Figure 12. Sampling frequency choice. The image shows the same signal for three different sampling frequencies (ripple event before filtering). Using 30000 Hz embraces too much unnecessary noise. 1250 Hz may work, because the shape, at its main, is conserved. However, in order to make sure it gets all the oscillations with a decent resolu-tion, the fs can be increased to 4000 Hz, which seems reasonable.
+
+
+Figure13. Same signal discretized with different y values. Ripple and non-ripple events need to be dis-cretized to train the model. Each dot represents a spike that will make the corresponding input neuron from the network fire. The less values used, the more the neurons from each value will fire, and may learn faster. However, the cost of low level of discretization is the loss of resolution. The shape changes nota-bly in lower values. 
+
+
+
+Figure 14. Finding the optimal filtering bandpass. Clear Ripple, middle clear ripple and non-ripple events are filtered within three bandpass filters. Middle clear ripples are some events found in the tagged dataset which do not show clear ripple activity. The three ranges make a detectable difference between ripples and non-ripples, but not between middle-clear ripples and non-ripples. The most differential and consistent bandpass is the one seen in the literature (100 – 250 Hz).
+
+
+
+Figure 15. Workflow to build the n-dataset. 1) Events are located in the recording, 2) A Butterworth bandpass filter is applied in the range of 100 to 250 Hz, which is the oscillation speed of ripples, 3) highest amplitude channel is selected from the shank and the signal is adjusted in length to fit the previously set window size (in the case of no ripple, as they are not previously tagged, the window length is directly set), 4) the extracted signal is converted to spikes.
+
+
+Figure 16. In search of the optimal architecture. Five trials were tested on n-datasets with different “y values” (4, 10, 20, 30, 40, 60, 80). Based on the results obtained, models with 3 dense layers had more difficulty for learning the pat-terns, and needed more epochs to reach high accuracy values. Lighter models, with 2 layers seemed to learn the pat-terns faster and needed less resolution for the y-discretization, that is, needed less neurons as input to detect the rip-ples. The most consistent with higher accuracy values was given by the model with two layers: 256_128. 
+
+
+
+Figure 17.  Overview of the trained SNN. A) The network has 2 dense layers, an input, and an output. The window is set as an input and for each sample of the input, the net-work computes an output. B) Difference in the network output between ripple as input, and other LFP event (no ripple).
