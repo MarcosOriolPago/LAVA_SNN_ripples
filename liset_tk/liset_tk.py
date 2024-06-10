@@ -16,10 +16,13 @@
 # Suppress warnings
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+import tensorflow as tf
+import tensorflow.keras as kr
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow.keras as kr
 from scipy.io import loadmat
 from copy import deepcopy
 from format_predictions import get_predictions_indexes
@@ -96,21 +99,21 @@ class liset_tk():
         """
             
         prop = self.fs_conv_fact
-        event_copy = deepcopy(event)
+        interval = deepcopy(event)
         handles = []
         labels = []
 
         try:
             if extend != 0:
-                if (event_copy[0] - extend) < 0:
-                    event_copy[0] = int(self.start / prop)
+                if (interval[0] - extend) < 0:
+                    interval[0] = int(self.start / prop)
                 else:
-                    event_copy[0] = event[0] - extend
+                    interval[0] = interval[0] - extend
 
-                if (event_copy[1] + extend) > self.numSamples/prop:
-                    event_copy[1] = int((self.start + self.numSamples)/prop)
+                if (interval[1] + extend) > self.numSamples/prop:
+                    interval[1] = int((self.start + self.numSamples)/prop)
                 else:
-                    event_copy[1] = event_copy[1] + extend
+                    interval[1] = interval[1] + extend
 
         except IndexError:
             print('IndexError')
@@ -118,16 +121,17 @@ class liset_tk():
             return None, None
 
         # Define window data
-        mask = (self.ripples_GT[:, 1] >= event_copy[0]) & (self.ripples_GT[:, 0] <= event_copy[1])
+        self.window_interval = interval
+        mask = (self.ripples_GT[:, 1] >= interval[0]) & (self.ripples_GT[:, 0] <= interval[1])
         self.window_ripples = self.ripples_GT[mask]
 
-        data_event = self.data[event_copy[0]: event_copy[1]][:]
-        self.window = deepcopy(data_event)
+        interval_data = self.data[interval[0]: interval[1]][:]
+        self.window = deepcopy(interval_data)
         
-        time_vector = np.linspace(event_copy[0] / self.fs, event_copy[1] / self.fs, data_event.shape[0])
+        time_vector = np.linspace(interval[0] / self.fs, interval[1] / self.fs, interval_data.shape[0])
         if show:
             fig, ax = plt.subplots(figsize=(10, 6))
-        for i, chann in enumerate(data_event.transpose()):
+        for i, chann in enumerate(interval_data.transpose()):
             if filtered:
                 bandpass = filtered
                 chann = bandpass_filter(chann, bandpass, self.fs)
@@ -160,9 +164,11 @@ class liset_tk():
                 labels.append('Ground truth')
 
         if show_predictions:
-            if hasattr(self, 'prediction_samples_from_window'):
-                for times in self.prediction_samples_from_window:
-                    fill_PRED = ax.fill_between([(times[0] + event_copy[0]) / self.fs, (times[1] + event_copy[0]) / self.fs],  min_val, max_val, color="tab:blue", alpha=0.3)
+            if hasattr(self, 'prediction_idxs'):
+                mask = (self.prediction_idxs[:, 1] >= interval[0]) & (self.prediction_idxs[:, 0] <= interval[1])
+                self.prediction_times_from_window = self.prediction_times[mask]
+                for times in self.prediction_times_from_window:
+                    fill_PRED = ax.fill_between([times[0], times[1]], min_val, max_val, color="tab:blue", alpha=0.3)
 
             if 'fill_PRED' in locals():
                 handles.append(fill_PRED)
@@ -170,9 +176,9 @@ class liset_tk():
 
         # Figure styles
         if filtered and not title:
-            title = f'Filtered channels\nEvent {event_copy}\nBandpass: {bandpass[0]}-{bandpass[1]}'
+            title = f'Filtered channels\nEvent {interval}\nBandpass: {bandpass[0]}-{bandpass[1]}'
         if not title:
-            title = f'Channels for samples {event_copy}'
+            title = f'Channels for samples {interval}'
 
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('Amplitude (mV)')
@@ -189,8 +195,21 @@ class liset_tk():
         
     
     def load_predictions(self, preds):
-        self.prediction_samples_from_window = preds
-    
+        if not isinstance(preds, np.ndarray):
+            preds = np.array(preds)
+        if np.mean(preds[1] - preds[0]) < 1:
+            conv_fact = 1
+            self.prediction_times = preds
+            self.prediction_idxs = (preds * self.fs).astype(int)
+        else:
+            conv_fact = self.fs
+            self.predition_idxs = preds
+            self.prediction_times = preds / self.fs
+
+        if hasattr(self, "window_interval"):
+            mask = (preds[:, 1] >= self.window_interval[0] / conv_fact) & (preds[:, 0] <= self.window_interval[1] / conv_fact)
+            self.prediction_times_from_window = preds[mask]
+        
 
     def ripples_in_chunk(self, ripples, start, numSamples, fs, prop):
         if not numSamples:
@@ -343,7 +362,7 @@ class liset_tk():
         if self.verbose:
             print("Loading model...", end=" ")
 
-        if model_path.endswith('.net'):
+        if model_path.endswith('.pt'):
             pass
 
         else:
@@ -360,6 +379,7 @@ class liset_tk():
                 self.model_window_for_input = 0.0128
 
         if self.verbose:
+            print("\nRunning on: ", "CPU" if not tf.config.experimental.list_physical_devices('GPU') else "GPU")
             print("Done!")
 
 
@@ -380,7 +400,7 @@ class liset_tk():
             window = self.model_window_for_input
             X = generate_overlapping_windows(self.data, window, window/2, self.fs)
             raw_predictions = self.model.predict(X, verbose=self.verbose)
-            self.prediction_idxs = get_predictions_indexes(raw_predictions, window, window/2, self.fs, threshold)
+            self.prediction_idxs = merge_overlapping_intervals(get_predictions_indexes(raw_predictions, window, window/2, self.fs, threshold))
             self.prediction_times = self.prediction_idxs / self.fs
 
             if len(self.prediction_times) > 0:

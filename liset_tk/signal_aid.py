@@ -112,10 +112,10 @@ def merge_overlapping_intervals(intervals):
     
     merged_intervals.append([start, end])
     
-    return merged_intervals
+    return np.array(merged_intervals)
 
 
-def detect_rate_increase(spike_train, window_size=60, threshold=50):
+def detect_rate_increase(spike_train, window_size=130, threshold=25):
     spike_count = pd.Series(spike_train).rolling(window=window_size, min_periods=1, center=False).sum()
 
     # Detect periods where spike count exceeds threshold

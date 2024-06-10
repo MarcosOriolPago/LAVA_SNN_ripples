@@ -101,11 +101,21 @@ class torchSNN():
             output = clean_output(raw_output)
         
         return output
-    
 
-class ValidationTk():
-    def __init__(self, target):
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+
+class modelEval():
+    def __init__(self, target, model_type):
         self.GT = target
+        self.model_type = model_type
+        
+    def __call__(self, result, chart=False):
+        performance = self.performance(result)
+        if chart:
+            self.plot_performance(performance, chart)
+        else:
+            return performance
 
     def calculate_iou(self, gt, pred):
         inter_start = max(gt[0], pred[0])
@@ -119,13 +129,11 @@ class ValidationTk():
         iou = intersection / union
         return iou
     
-
     def is_match_iou(self, gt, pred, threshold=0.2):
         iou = self.calculate_iou(gt, pred)
         return iou >= threshold
-
     
-    def __call__(self, result):
+    def performance(self, result):
         # result: predicted timings (list of (start, stop) tuples)
 
         correct_predictions = 0
@@ -148,4 +156,44 @@ class ValidationTk():
             'precision': f'{precision:.2f}',
             'recall': f'{recall:.2f}'
         }
+    
+    def plot_performance(self, performance_dict, chart):
+        metrics = ['Correct Predictions', 'Total Predictions', 'Total GT', 'Precision', 'Recall', 'F1 Score']
+        f1_score = 2 * (float(performance_dict['precision']) * float(performance_dict['recall'])) / (float(performance_dict['precision']) + float(performance_dict['recall'])) if float(performance_dict['precision']) + float(performance_dict['recall']) != 0 else 0
+        values = [float(performance_dict['correct_predictions']),
+                float(performance_dict['total_predictions']),
+                float(performance_dict['total_gt']),
+                float(performance_dict['precision']),
+                float(performance_dict['recall']),
+                f1_score] # F1 score
+
+        fig, ax = plt.subplots(1,1, figsize=(6, 6))
+        plt.style.use('seaborn-v0_8-paper')
+
+        # Bar chart for Precision and Recall
+        bar_colors = ['#F8B54F', '#23CA89', '#266AC1']
+        bars = ax.bar(metrics[-3:], values[-3:], color=bar_colors, width=0.5)
+        ax.set_ylim([0, 1])
+        # ax[0].set_xlim([-0.5,1.5])
+        ax.set_ylabel('Percentage')
+        ax.spines['top'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+        # Adding the data labels on top of the bars
+        for bar, value in zip(bars, values[-3:]):
+            yval = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width() / 2, yval + 0.02, round(value, 2), ha='center', va='bottom')
+
+        fig.suptitle(f'{self.model_type} Performance Metrics', fontsize=14, fontweight='bold')
+
+        if isinstance(chart, str):
+            if chart.endswith('.svg'):
+                plt.savefig(chart, format='svg', transparent=True)
+            else:
+                plt.savefig(chart)
+        else:
+            plt.show()
+    
+    
 
