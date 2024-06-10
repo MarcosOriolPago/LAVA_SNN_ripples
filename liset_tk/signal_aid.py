@@ -112,7 +112,7 @@ def merge_overlapping_intervals(intervals):
     
     merged_intervals.append([start, end])
     
-    return np.array(merged_intervals)
+    return np.array(merged_intervals).astype(int)
 
 
 def detect_rate_increase(spike_train, window_size=130, threshold=25):

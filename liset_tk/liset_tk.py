@@ -18,6 +18,10 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
+import sys
+sys.path.insert(0, '../utils/')
+from eval import modelEval
+
 import tensorflow as tf
 import tensorflow.keras as kr
 
@@ -83,7 +87,7 @@ class liset_tk():
 
 
     @hide_y_ticks_on_offset
-    def plot_event(self, event, offset=0, extend=0, delimiter=False, show=True, filtered=False, title=False, label=False, show_ground_truth=False, show_predictions=False):
+    def plot_event(self, event, offset=0, extend=0, delimiter=False, show=True, filtered=[], title='', label='', show_ground_truth=False, show_predictions=False):
         """
         Plot the ripple signal number idx.
 
@@ -161,7 +165,7 @@ class liset_tk():
 
             if 'fill_GT' in locals():
                 handles.append(fill_GT)
-                labels.append('Ground truth')
+                labels.append('Ground truth' if not label else label)
 
         if show_predictions:
             if hasattr(self, 'prediction_idxs'):
@@ -363,6 +367,8 @@ class liset_tk():
             print("Loading model...", end=" ")
 
         if model_path.endswith('.pt'):
+            self.model_type='SNN'
+            
             pass
 
         else:
@@ -410,66 +416,24 @@ class liset_tk():
             print('No model loaded.')
             return
         
-    def check_performance(self, show=True, criteria=False):
+
+    def evaluate(self, preds=None, chart=True, model_type=''):
         """
-        Check the performance of the ripples prediction compared to ground truth events.
+        Evaluate the performance of the model on the loaded data.
 
         Parameters:
-        - show (bool, optional): Whether to display a pie chart illustrating the performance evaluation. Default is False.
+        - threshold (float, optional): Threshold for event prediction confidence. Default is 0.7.
 
         Returns:
         - None
         """
-
-        if not hasattr(self.prediction_times, 'dtype'):
-            print('No predictions found. Use a model to predict ripples and then check the performance.')
-            return 
-        elif not hasattr(self, 'ripples_GT'):
-            print('No Ground truth ripple events could be loaded.')
-            return
+        validate = modelEval(self.ripples_GT, self.model_type if model_type == '' else model_type)
+        if hasattr(self, 'prediction_idxs') and preds is None:
+            validate(self.prediction_idxs, chart=chart)
+        elif preds is not None:
+            validate(preds, chart=chart)
         else:
-            if not hasattr(self.ripples_GT, 'dtype'):
-                GT = np.array(self.ripples_GT)
-            else:
-                GT = self.ripples_GT
-
-            # If the loaded ripples are in a format with 5 columns, then the values are in frames. 
-            # So they need to be converted to seconds.
-            if GT.shape[1] == 5:
-                GT = GT / self.original_fs
-
-            PT = self.prediction_times
-
-            # Only compare with the GT events in the range of loaded data. (Only a part of the dataset may be loaded)
-            GT = GT[GT[:, 0] < self.duration]
-            # Round the values to get rid of overlapped predictions, and to compare easily if a prediction is correct.
-            GT = set([round(i[0], 1) for i in GT])
-            PT = set([round(i[0], 1) for i in PT])
-
-            true_positives = len(GT.intersection(PT)) # When a PT has the same value as GT.
-            false_positives = len(PT) - true_positives
-            missed = len(GT) - true_positives
-            labels = ['True positives', 'False positives', 'Missed ripples']
-            total = true_positives + false_positives + missed
-
-            val = missed/total * 1.3 + false_positives/total * 0.8
-            self.performance = custom_performance_sigmoid(val)
-
-            if show:
-                plt.figure(figsize=(8, 8))
-                plt.pie([true_positives, false_positives, missed], labels=labels, autopct='%1.1f%%', startangle=140)
-                plt.title('Performance Evaluation')
-                plt.text(0, 0, f'Performance: {round(self.performance, 2)}', horizontalalignment='center', verticalalignment='center', fontsize=12)
-                plt.show()
-            
-            if criteria:
-                print(f"""val = missed_ripples/total * 1.3 + false_positives/total * 0.8\n\n
-From liset_aux.py
-function custom_performance_sigmoid(val, k=2) --> {self.performance}\n
-    return  2 - (1 / (1 + math.exp(-k * x))) * 2\n\n
-Where k is the slope parameter (default is 2)\n
-
-                """)
+            print('No predictions available.')
 
     
     def savefig(self, fname, background=False):

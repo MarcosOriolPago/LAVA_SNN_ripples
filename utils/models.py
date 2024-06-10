@@ -101,6 +101,3 @@ class torchSNN():
             output = clean_output(raw_output)
         
         return output
-    
-    
-
