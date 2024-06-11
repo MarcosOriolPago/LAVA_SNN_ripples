@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 
 class modelEval():
-    def __init__(self, target, model_type):
+    def __init__(self, target, model_type, title=None):
         self.GT = target
         self.model_type = model_type
+        self.title = title
         
     def __call__(self, result, chart=False):
         performance = self.performance(result)
@@ -80,7 +81,11 @@ class modelEval():
             yval = bar.get_height()
             ax.text(bar.get_x() + bar.get_width() / 2, yval + 0.02, round(value, 2), ha='center', va='bottom')
 
-        fig.suptitle(f'{self.model_type} Performance Metrics', fontsize=14, fontweight='bold')
+
+        if self.title:
+            fig.suptitle(self.title, fontsize=14, fontweight='bold')
+        else:
+            fig.suptitle(f'{self.model_type} Performance Metrics', fontsize=14, fontweight='bold')
 
         if isinstance(chart, str):
             if chart.endswith('.svg'):
