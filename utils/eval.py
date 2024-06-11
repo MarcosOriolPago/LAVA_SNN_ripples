@@ -44,24 +44,25 @@ class modelEval():
         # Calculate some metrics
         precision = correct_predictions / total_predictions if total_predictions > 0 else 0
         recall = correct_predictions / total_gt if total_gt > 0 else 0
+        f1_score = 2 * (precision * recall) / (precision + recall) if precision + recall != 0 else 0
         
         return {
             'correct_predictions': f'{correct_predictions:.2f}',
             'total_predictions': f'{total_predictions:.2f}',
             'total_gt': f'{total_gt:.2f}',
             'precision': f'{precision:.2f}',
-            'recall': f'{recall:.2f}'
+            'recall': f'{recall:.2f}',
+            'f1_score': f'{f1_score:.2f}'
         }
     
     def plot_performance(self, performance_dict, chart):
         metrics = ['Correct Predictions', 'Total Predictions', 'Total GT', 'Precision', 'Recall', 'F1 Score']
-        f1_score = 2 * (float(performance_dict['precision']) * float(performance_dict['recall'])) / (float(performance_dict['precision']) + float(performance_dict['recall'])) if float(performance_dict['precision']) + float(performance_dict['recall']) != 0 else 0
         values = [float(performance_dict['correct_predictions']),
                 float(performance_dict['total_predictions']),
                 float(performance_dict['total_gt']),
                 float(performance_dict['precision']),
                 float(performance_dict['recall']),
-                f1_score] # F1 score
+                float(performance_dict['f1_score'])] # F1 score
 
         fig, ax = plt.subplots(1,1, figsize=(6, 6))
         plt.style.use('seaborn-v0_8-paper')
