@@ -94,6 +94,37 @@ def hide_y_ticks_on_offset(func, verbose = True):
     return wrapper
 
 
+def no_axes(func, axes):
+    """
+    Eliminate the selected axes from the matplotlib plot.
+    """
+
+    def wrapper(*args, **kwargs):
+        # Call the function and get the figure and axis objects
+        fig, ax = func(*args, **kwargs)
+
+        # Hide the y-ticks
+        ax.set_yticks([])
+        ax.set_yticklabels([])
+        ax.set_xticks([])
+        ax.set_xticklabels([])
+        if axes[0]:
+            ax.spines['top'].set_visible(False)
+        if axes[1]:
+            ax.spines['left'].set_visible(False)
+        if axes[2]:
+            ax.spines['right'].set_visible(False)
+        if axes[3]:
+            ax.spines['bottom'].set_visible(False)
+
+        ax.grid(False)
+
+        plt.show()        
+
+    return wrapper
+
+
+
 def custom_performance_sigmoid(x, k=2):
     """
     Computes the performance of the model using a sigmoid function.
