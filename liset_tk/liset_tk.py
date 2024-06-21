@@ -87,9 +87,20 @@ class liset_tk():
                 self.num_ripples = len(self.ripples_GT)
                 self.ripples_GT = (self.ripples_GT * self.fs - start / self.fs_conv_fact).astype(int)
 
-
+    @plain_plot
     @hide_y_ticks_on_offset
-    def plot_event(self, event, offset=0, extend=0, delimiter=False, show=True, filtered=[], title='', label='', show_ground_truth=False, show_predictions=False):
+    def plot_event(self, 
+                   event, 
+                   offset=0, 
+                   extend=0, 
+                   delimiter=False, 
+                   show=True, 
+                   filtered=[], 
+                   title='', 
+                   label='', 
+                   show_ground_truth=False, 
+                   show_predictions=False, 
+                   plain=False):
         """
         Plot the ripple signal number idx.
 
@@ -443,8 +454,8 @@ class liset_tk():
     
     def savefig(self, fname, background=False):
         if fname.endswith('.svg'):
-            self.fig.savefig(fname, transparent=not background, format='svg')
+            self.fig.savefig(fname, transparent=not background, format='svg', bbox_inches='tight')
         else:
-            self.fig.savefig(fname, transparent=not background)
+            self.fig.savefig(fname, transparent=not background, bbox_inches='tight')
                 
 

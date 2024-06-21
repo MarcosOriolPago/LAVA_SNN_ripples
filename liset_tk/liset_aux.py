@@ -89,35 +89,41 @@ def hide_y_ticks_on_offset(func, verbose = True):
             ax.set_ylabel('')
             ax.grid(False)
 
-        plt.show()        
+        return fig, ax        
 
     return wrapper
 
 
-def no_axes(func, axes):
+def plain_plot(func):
     """
     Eliminate the selected axes from the matplotlib plot.
     """
 
     def wrapper(*args, **kwargs):
         # Call the function and get the figure and axis objects
-        fig, ax = func(*args, **kwargs)
+        try:
+            fig, ax = func(*args, **kwargs)
+        except Exception as err:
+            print(err)
+            return
+        axes = kwargs.get('plain', 0)
 
-        # Hide the y-ticks
-        ax.set_yticks([])
-        ax.set_yticklabels([])
-        ax.set_xticks([])
-        ax.set_xticklabels([])
-        if axes[0]:
+        if axes:
+            # Hide the y-ticks
+            ax.set_yticks([])
+            ax.set_yticklabels([])
+            ax.set_xticks([])
+            ax.set_xticklabels([])
+            ax.set_ylabel('')
+            ax.set_xlabel('')
+            ax.set_title('')
+
             ax.spines['top'].set_visible(False)
-        if axes[1]:
-            ax.spines['left'].set_visible(False)
-        if axes[2]:
-            ax.spines['right'].set_visible(False)
-        if axes[3]:
             ax.spines['bottom'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(False)
 
-        ax.grid(False)
+            ax.grid(False)
 
         plt.show()        
 

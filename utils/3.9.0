@@ -1,0 +1,2 @@
+Requirement already satisfied: pymongo in c:\users\marco\miniconda3\envs\lava_snn_ripples\lib\site-packages (4.7.3)
+Requirement already satisfied: dnspython<3.0.0,>=1.16.0 in c:\users\marco\miniconda3\envs\lava_snn_ripples\lib\site-packages (from pymongo) (2.6.1)
