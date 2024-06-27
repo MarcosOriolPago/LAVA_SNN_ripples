@@ -27,8 +27,8 @@ device = torch.device('cpu')
 
 # Test-Train data preparation
 print('Loading data ...', end='')
-true_positives = np.load(f'../dataset/{y_size}/n_true_positives.npy')
-true_negatives = np.load(f'../dataset/{y_size}/n_true_negatives.npy')
+true_positives = np.load(f'../extract_Nripples/train/n_dataset/{y_size}/n_true_positives.npy')
+true_negatives = np.load(f'../extract_Nripples/train/n_dataset/{y_size}/n_true_negatives.npy')
 
 # Create labels for the datasets (1 for true positives, 0 for true negatives)
 labels_positives = np.ones(len(true_positives)).astype(int)
@@ -81,12 +81,12 @@ for epoch in range(epochs):
     
     if stats.testing.best_accuracy:
         net.export_hdf5(trained_folder + '/network.net')
-        torch.save(net.state_dict(), trained_folder + '/network.pt')
+        torch.save(net.state_dict(), trained_folder + '/state_dict.pt')
+        torch.save(net, trained_folder + '/state_dict.pt')
     stats.update()
     stats.save(trained_folder + '/')
     # stats.plot(figsize=(15, 5), path=trained_folder)
     # net.grad_flow(trained_folder + '/')
 
-    sh.run(['python3.9', 'plot_accuracies.py', folder])
-    sh.run(['bash', 'update_git.sh'])
+
 
