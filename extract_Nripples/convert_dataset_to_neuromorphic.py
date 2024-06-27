@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-sys.path.insert(0, 'liset_tk/')
+sys.path.insert(0, '../liset_tk/')
 from signal_aid import y_discretize_1Dsignal, cutoff_amplitude
 import os
 

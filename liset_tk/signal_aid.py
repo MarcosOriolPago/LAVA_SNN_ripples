@@ -146,7 +146,7 @@ def window_to_spikes(window, y_size=50):
 
 
 def scatter(input, save = False, prediction=False, title=None, labels=[], dot_size=8):
-    if prediction and signal.shape[0] != 2:
+    if prediction and input.shape[0] != 2:
         signal = input
     else:
         signal = np.zeros(input.shape[1])
