@@ -1,5 +1,5 @@
 # Define the epochs, model architectures, and Y_num_samples
-architectures=("5_5")
+architectures=("20_5")
 y_num_samples=("20")
 epochs=("10")
 
@@ -16,4 +16,4 @@ done
 
 python3.9 plot_accuracies.py "trial_output"
 
-./update_git.sh
+bash update_git.sh
