@@ -1,5 +1,5 @@
 # Define the epochs, model architectures, and Y_num_samples
-architectures=("20_5")
+architectures=("10")
 y_num_samples=("20")
 epochs=("10")
 
