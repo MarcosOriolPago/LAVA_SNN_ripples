@@ -1,6 +1,6 @@
 # Define the epochs, model architectures, and Y_num_samples
-architectures=("10")
-y_num_samples=("20")
+architectures=("256_128")
+y_num_samples=("140")
 epochs=("10")
 
 # Iterate through each combination and run the Python script
