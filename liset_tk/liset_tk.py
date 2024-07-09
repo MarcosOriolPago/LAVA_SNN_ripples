@@ -98,6 +98,9 @@ class liset_tk():
                    filtered=[], 
                    title='', 
                    label='', 
+                   ch=False,
+                   ylim=False,
+                   line_color=False,
                    show_ground_truth=False, 
                    show_predictions=False, 
                    plain=False):
@@ -154,7 +157,21 @@ class liset_tk():
                 chann = bandpass_filter(chann, bandpass, self.fs)
                 self.window[:, i] = chann
             if show:
-                ax.plot(time_vector, chann + i * offset)
+                if ch:
+                    if i in ch:
+                        if line_color:
+                            ax.plot(time_vector, chann + i * offset, line_color)
+                        else:
+                            ax.plot(time_vector, chann + i * offset)
+                else:
+                    if line_color:
+                        ax.plot(time_vector, chann + i * offset, line_color)
+                    else:
+                        ax.plot(time_vector, chann + i * offset)
+            
+            if ylim:
+                ax.set_ylim(ylim)
+                
 
         max_val = np.max(self.window.reshape((self.window.shape[0]*self.window.shape[1]))) + offset*8
         min_val = np.min(self.window.reshape((self.window.shape[0]*self.window.shape[1])))
