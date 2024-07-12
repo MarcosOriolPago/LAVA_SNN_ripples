@@ -11,7 +11,7 @@ import time
 
 
 # Define general variables
-parent = '../../Amigo2_1_hippo_2019-07-11_11-57-07_1150um'
+parent = '../../Amigo2_1_hippo_2019-07-11_11-57-07_1150um' #path to recording session
 std, mean = ripples_std(parent)
 processed_ripples = []
 downsampled_fs = int(sys.argv[1])
