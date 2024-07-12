@@ -18,3 +18,4 @@ do
 done
 
 python3.9 plot_accuracies.py "models"
+
