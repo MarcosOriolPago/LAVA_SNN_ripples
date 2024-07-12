@@ -1,11 +1,9 @@
-# Parse command-line arguments
-while getopts a:y: flag
-do
-    case "${flag}" in
-        a) architectures=(${OPTARG//,/ });;
-        y) y_num_samples=(${OPTARG//,/ });;
-    esac
-done
+#!/bin/bash
+
+# Default values
+architectures=("256_128")
+y_num_samples=("50")
+
 
 # Iterate through each combination and run the Python script
 for architecture in "${architectures[@]}"
@@ -18,4 +16,3 @@ do
 done
 
 python3.9 plot_accuracies.py "models"
-
