@@ -1,0 +1,14 @@
+name: rippl_AI_env
+channels:
+  - defaults
+dependencies:
+  - python=3.9.15
+  - numpy
+  - pandas
+  - matplotlib
+  - scipy
+  - h5py
+  - pip
+  - pip:
+    - tensorflow==2.15
+    - keras==2.15
